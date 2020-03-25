@@ -115,7 +115,7 @@ def get_stored_videos():
 #
 # TODO Implement this function for real.
 #
-def remove_video(name):
+def remove_stored_video(name):
     index = -1
     for i in range(0, len(mocked_stored_videos)):
         if mocked_stored_videos[i][NAME_INDEX] == name:
@@ -149,21 +149,26 @@ storage_limit = int(config_params['STORAGE_LIMIT_MB'])
 
 p = Path(local_video_dir)
 
-videos_to_upload = []
+local_videos = []
 for x in p.iterdir():
-    print(get_size_megabytes(x))
-    print(get_canonical_name(x))
-    videos_to_upload.append(x)
+    local_videos.append(x)
 
 stored_videos = get_stored_videos()
-for video in stored_videos:
-    print(video[TIME_INDEX])
-print('Identifying new videos: ')
-new_videos = identify_new_local_videos(videos_to_upload, stored_videos)
-print(new_videos)
-print('Identifying old videos: ')
-old_videos = identify_old_local_videos(videos_to_upload, stored_videos)
-print(old_videos)
-print('Identifying videos to delete: ')
+print('Printing stored videos:')
+print(stored_videos)
+new_videos = identify_new_local_videos(local_videos, stored_videos)
 deletion_list = identify_stored_deletions(new_videos, stored_videos, storage_limit)
-print(deletion_list)
+print('Deleting old videos from the cloud...')
+for name in deletion_list:
+    print('Deleting video ' + name)
+    remove_stored_video(name)
+print('Uploading new videos...')
+for path in new_videos:
+    print('Uploading video ' + path.name + ' of size ' + repr(round(get_size_megabytes(path), 1)) + ' MB')
+    upload_video(path)
+print('Printing stored videos again:')
+print(get_stored_videos())
+
+print('Identifying local videos that can be deleted: ')
+old_videos = identify_old_local_videos(local_videos, stored_videos)
+print(old_videos)
