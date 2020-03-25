@@ -93,6 +93,9 @@ def identify_old_local_videos(local_video_paths, stored_video_tuples):
             old_video_paths.append(path)
     return old_video_paths
 
+def delete_local_video(path):
+    path.unlink()
+
 def calculate_total_size_megabytes(video_tuple_list):
     total_size = 0
     for video_tuple in video_tuple_list:
@@ -177,6 +180,8 @@ stored_videos = get_stored_videos()
 print('Your updated cloud storage usage: ', end = '')
 print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
 
-print('Identifying local videos that can be deleted: ')
+print('Deleting old local videos... ')
 old_videos = identify_old_local_videos(local_videos, stored_videos)
-print(old_videos)
+for path in old_videos:
+    print('Deleting video ' + path.name)
+    delete_local_video(path)
