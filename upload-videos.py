@@ -113,6 +113,13 @@ def read_config_params():
         config_dict[key] = val
     return config_dict
 
+def get_local_videos():
+    local_videos = []
+    dir_path = Path(local_video_dir)
+    for path in dir_path.iterdir():
+        local_videos.append(path)
+    return local_videos
+
 # This is a 'mocked' version of the function.
 #
 # TODO: Implement this function for real.
@@ -152,12 +159,7 @@ local_video_dir = config_params['LOCAL_VIDEO_DIR']
 user_name = config_params['USER_NAME']
 storage_limit = int(config_params['STORAGE_LIMIT_MB'])
 
-p = Path(local_video_dir)
-
-local_videos = []
-for x in p.iterdir():
-    local_videos.append(x)
-
+local_videos = get_local_videos()
 stored_videos = get_stored_videos()
 
 print('Your cloud storage usage before running this script: ', end = '')
@@ -174,7 +176,7 @@ for path in new_videos:
     print('Uploading video ' + path.name + ' of size ' + repr(round(get_size_megabytes(path), 1)) + ' MB')
     upload_video(path)
 
-# Refresh the local copy of the stored video list
+# Refresh the cached copy of the stored video list
 stored_videos = get_stored_videos()
 
 print('Your updated cloud storage usage: ', end = '')
