@@ -93,6 +93,12 @@ def identify_old_local_videos(local_video_paths, stored_video_tuples):
             old_video_paths.append(path)
     return old_video_paths
 
+def calculate_total_size_megabytes(video_tuple_list):
+    total_size = 0
+    for video_tuple in video_tuple_list:
+        total_size += video_tuple[SIZE_INDEX]
+    return total_size
+
 def read_config_params():
     config_dict = dict()
     config_file = open(CONFIG_FILE)
@@ -150,20 +156,26 @@ for x in p.iterdir():
     local_videos.append(x)
 
 stored_videos = get_stored_videos()
-print('Printing stored videos:')
-print(stored_videos)
+
+print('Your cloud storage usage before running this script: ', end = '')
+print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
+
 new_videos = identify_new_local_videos(local_videos, stored_videos)
 deletion_list = identify_stored_deletions(new_videos, stored_videos, storage_limit)
-print('Deleting old videos from the cloud...')
+print('Deleting old videos from cloud storage if necessary...')
 for video_tuple in deletion_list:
     print('Deleting video ' + video_tuple[NAME_INDEX])
     remove_stored_video(video_tuple)
-print('Uploading new videos...')
+print('Uploading new videos from your local storage...')
 for path in new_videos:
     print('Uploading video ' + path.name + ' of size ' + repr(round(get_size_megabytes(path), 1)) + ' MB')
     upload_video(path)
-print('Printing stored videos again:')
-print(get_stored_videos())
+
+# Refresh the local copy of the stored video list
+stored_videos = get_stored_videos()
+
+print('Your updated cloud storage usage: ', end = '')
+print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
 
 print('Identifying local videos that can be deleted: ')
 old_videos = identify_old_local_videos(local_videos, stored_videos)
