@@ -38,7 +38,7 @@ def get_canonical_name(path):
     return user_name + '-' + datetime_to_string(get_modification_time(path)) + path.suffix
 
 # Figures out which stored files to delete, in order to make space for all of
-# the videos in upload_list. Returns a list of video names.
+# the videos in upload_list. Returns a list of video tuples.
 #
 # Assumptions: get_stored_videos() returns videos sorted in ascending timestamp
 # order.
@@ -56,7 +56,7 @@ def identify_stored_deletions(upload_list, stored_video_tuples, storage_limit):
     deletion_list = []
     index = 0
     while total_size > storage_limit:
-        deletion_list.append(stored_video_tuples[index][NAME_INDEX])
+        deletion_list.append(stored_video_tuples[index])
         total_size -= stored_video_tuples[index][SIZE_INDEX]
         index += 1
     return deletion_list
@@ -115,12 +115,8 @@ def get_stored_videos():
 #
 # TODO Implement this function for real.
 #
-def remove_stored_video(name):
-    index = -1
-    for i in range(0, len(mocked_stored_videos)):
-        if mocked_stored_videos[i][NAME_INDEX] == name:
-            index = i
-    del mocked_stored_videos[index]
+def remove_stored_video(video_tuple):
+    mocked_stored_videos.remove(video_tuple)
 
 # This is a 'mocked' version of the function.
 #
@@ -159,9 +155,9 @@ print(stored_videos)
 new_videos = identify_new_local_videos(local_videos, stored_videos)
 deletion_list = identify_stored_deletions(new_videos, stored_videos, storage_limit)
 print('Deleting old videos from the cloud...')
-for name in deletion_list:
-    print('Deleting video ' + name)
-    remove_stored_video(name)
+for video_tuple in deletion_list:
+    print('Deleting video ' + video_tuple[NAME_INDEX])
+    remove_stored_video(video_tuple)
 print('Uploading new videos...')
 for path in new_videos:
     print('Uploading video ' + path.name + ' of size ' + repr(round(get_size_megabytes(path), 1)) + ' MB')
