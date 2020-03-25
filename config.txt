@@ -1,1 +1,2 @@
 VIDEO_DIR=fill_in_here
+USER_NAME=fill_in_here
