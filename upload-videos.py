@@ -37,7 +37,7 @@ def datetime_to_string(datetime):
 def get_canonical_name(path):
     return user_name + '-' + datetime_to_string(get_modification_time(path)) + path.suffix
 
-# Figure out which stored files to delete, in order to make space for all of
+# Figures out which stored files to delete, in order to make space for all of
 # the videos in upload_list. Returns a list of video names.
 #
 # Assumptions: get_stored_videos() returns videos sorted in ascending timestamp
@@ -45,22 +45,53 @@ def get_canonical_name(path):
 #
 # Preconditions: upload_list does not contain any videos in cloud storage.
 #
-def identify_stored_deletions(upload_list, storage_limit):
+def identify_stored_deletions(upload_list, stored_video_tuples, storage_limit):
     upload_size = 0
     for path in upload_list:
         upload_size += get_size_megabytes(path)
-    stored_videos = get_stored_videos()
     storage_size = 0
-    for video in stored_videos:
+    for video in stored_video_tuples:
         storage_size += video[SIZE_INDEX]
-    total_size= upload_size + storage_size
+    total_size = upload_size + storage_size
     deletion_list = []
     index = 0
     while total_size > storage_limit:
-        deletion_list.append(stored_videos[index][NAME_INDEX])
-        total_size -= stored_videos[index][SIZE_INDEX]
+        deletion_list.append(stored_video_tuples[index][NAME_INDEX])
+        total_size -= stored_video_tuples[index][SIZE_INDEX]
         index += 1
     return deletion_list
+
+# Figures out which local videos are not stored in cloud storage and are newer
+# than any of the videos in cloud storage. Returns a list of paths.
+#
+def identify_new_local_videos(local_video_paths, stored_video_tuples):
+    stored_video_names = []
+    for video in stored_video_tuples:
+        stored_video_names.append(video[NAME_INDEX])
+    last_stored_timestamp = stored_video_tuples[len(stored_videos) - 1][TIME_INDEX]
+    new_video_paths = []
+    for path in local_video_paths:
+        name = get_canonical_name(path)
+        timestamp = get_modification_time(path)
+        if stored_video_names.count(name) == 0 and timestamp > last_stored_timestamp:
+            new_video_paths.append(path)
+    return new_video_paths
+
+# Figures out which local videos are currently stored in cloud storage, or are older
+# than any video in cloud storage, and can be safely deleted. Returns a list of paths.
+#
+def identify_old_local_videos(local_video_paths, stored_video_tuples):
+    stored_video_names = []
+    for video in stored_video_tuples:
+        stored_video_names.append(video[NAME_INDEX])
+    oldest_stored_timestamp = stored_video_tuples[0][TIME_INDEX]
+    old_video_paths = []
+    for path in local_video_paths:
+        name = get_canonical_name(path)
+        timestamp = get_modification_time(path)
+        if stored_video_names.count(name) or timestamp < oldest_stored_timestamp:
+            old_video_paths.append(path)
+    return old_video_paths
 
 def read_config_params():
     config_dict = dict()
@@ -127,5 +158,12 @@ for x in p.iterdir():
 stored_videos = get_stored_videos()
 for video in stored_videos:
     print(video[TIME_INDEX])
-deletion_list = identify_stored_deletions(videos_to_upload, storage_limit)
+print('Identifying new videos: ')
+new_videos = identify_new_local_videos(videos_to_upload, stored_videos)
+print(new_videos)
+print('Identifying old videos: ')
+old_videos = identify_old_local_videos(videos_to_upload, stored_videos)
+print(old_videos)
+print('Identifying videos to delete: ')
+deletion_list = identify_stored_deletions(new_videos, stored_videos, storage_limit)
 print(deletion_list)
