@@ -1,3 +1,9 @@
+# I will hopefully write some better documentation once I'm closer to finished.
+# In the meantime, here are some notes for myself:
+#
+# * I work with local video files in the form of paths and video files in cloud
+# storage as (name, timestamp, size) tuples.
+#
 # My main resource in writing this script was the Python documentation.
 # Here are some other links that I found useful:
 # https://stackoverflow.com/a/4172465
@@ -30,6 +36,31 @@ def datetime_to_string(datetime):
 
 def get_canonical_name(path):
     return user_name + '-' + datetime_to_string(get_modification_time(path)) + path.suffix
+
+# Figure out which stored files to delete, in order to make space for all of
+# the videos in upload_list. Returns a list of video names.
+#
+# Assumptions: get_stored_videos() returns videos sorted in ascending timestamp
+# order.
+#
+# Preconditions: upload_list does not contain any videos in cloud storage.
+#
+def identify_stored_deletions(upload_list, storage_limit):
+    upload_size = 0
+    for path in upload_list:
+        upload_size += get_size_megabytes(path)
+    stored_videos = get_stored_videos()
+    storage_size = 0
+    for video in stored_videos:
+        storage_size += video[SIZE_INDEX]
+    total_size= upload_size + storage_size
+    deletion_list = []
+    index = 0
+    while total_size > storage_limit:
+        deletion_list.append(stored_videos[index][NAME_INDEX])
+        total_size -= stored_videos[index][SIZE_INDEX]
+        index += 1
+    return deletion_list
 
 def read_config_params():
     config_dict = dict()
@@ -76,26 +107,25 @@ def upload_video(path):
 # TODO Delete these variables when they're no longer needed.
 #
 mocked_stored_videos = [
-    ('Niel-3-24-12-00-00.mkv', datetime(2020, 3, 24, 12, 00, 00), 600),
-    ('Niel-3-24-12-10-00.mkv', datetime(2020, 3, 24, 12, 10, 00), 600)
+    ('Niel-3-24-12-00-00.mkv', datetime(2020, 3, 24, 12, 00, 00), 200),
+    ('Niel-3-24-12-10-00.mkv', datetime(2020, 3, 24, 12, 10, 00), 200)
 ]
 
 config_params = read_config_params()
 local_video_dir = config_params['LOCAL_VIDEO_DIR']
 user_name = config_params['USER_NAME']
+storage_limit = int(config_params['STORAGE_LIMIT_MB'])
 
 p = Path(local_video_dir)
 
-test_video_to_upload = None
+videos_to_upload = []
 for x in p.iterdir():
     print(get_size_megabytes(x))
     print(get_canonical_name(x))
-    test_video_to_upload = x
+    videos_to_upload.append(x)
 
 stored_videos = get_stored_videos()
 for video in stored_videos:
     print(video[TIME_INDEX])
-remove_video('Niel-3-24-12-00-00.mkv')
-upload_video(test_video_to_upload)
-for video in stored_videos:
-    print(video[TIME_INDEX])
+deletion_list = identify_stored_deletions(videos_to_upload, storage_limit)
+print(deletion_list)

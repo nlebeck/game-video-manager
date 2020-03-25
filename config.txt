@@ -1,2 +1,3 @@
 VIDEO_DIR=fill_in_here
 USER_NAME=fill_in_here
+STORAGE_LIMIT_MB=fill_in_here
