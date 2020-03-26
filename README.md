@@ -82,10 +82,8 @@ script that uses OneDrive for storage.
 1. Record video while playing a game, the way you normally do.
 
 2. After you're done with the game, double-click `upload-videos.py` to run the
-script. Look at the text output to see what it's doing. If the script crashes,
-copy-paste the output and email it to me.
+script. Look at the text output to see what it's doing. (If the script crashes,
+copy-paste the output and email it to me.)
 
 3. Look at the OneDrive icon in your taskbar and wait for the uploaded videos
-to finish syncing. Once they're done syncing, you can go into the shared
-OneDrive folder, right-click on video files, and select "Free up space" if you
-want to free up space on your local disk.
+to finish syncing.
