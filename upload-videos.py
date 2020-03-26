@@ -215,6 +215,7 @@ init_storage(user_name)
 local_videos = get_local_videos()
 stored_videos = get_stored_videos(user_name)
 
+print('######')
 print('Your cloud storage usage before running this script: ', end = '')
 print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
 
@@ -235,11 +236,20 @@ if not validation_result:
     sys.exit(1)
 
 deletion_list = identify_stored_deletions(new_videos, stored_videos, storage_limit)
+print('######')
 print('Deleting old videos from cloud storage if necessary...')
+print('------')
+if len(deletion_list) == 0:
+    print('No need to delete any videos from cloud storage right now.')
 for video_tuple in deletion_list:
     print('Deleting video ' + video_tuple[NAME_INDEX])
     remove_stored_video(video_tuple, user_name)
+
+print('######')
 print('Uploading new videos from your local storage...')
+print('------')
+if len(new_videos) == 0:
+    print('No new videos to upload right now.')
 for path in new_videos:
     print('Uploading video ' + path.name + ' of size ' + repr(round(get_size_megabytes(path), 1)) + ' MB')
     upload_video(path, user_name)
@@ -247,14 +257,20 @@ for path in new_videos:
 # Refresh the cached copy of the stored video list
 stored_videos = get_stored_videos(user_name)
 
-print('Your updated cloud storage usage: ', end = '')
-print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
-
 if delete_local:
+    print('######')
     print('Deleting old local videos... ')
+    print('------')
     old_videos = identify_old_local_videos(local_videos, stored_videos)
+    if len(old_videos) == 0:
+        print('No old local videos to delete right now.')
     for path in old_videos:
         print('Deleting video ' + path.name)
         delete_local_video(path)
 
+print('######')
+print('Your updated cloud storage usage: ', end = '')
+print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
+
+print('######')
 input('Press any key to exit.')
