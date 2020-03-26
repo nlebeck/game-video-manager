@@ -217,6 +217,8 @@ if not validation_result:
     print('videos that stay under the limit, but Niel was too lazy to')
     print('implement that functionality. Go heckle him if you want this')
     print('feature implemented.')
+    print()
+    input('Press any key to exit.')
     sys.exit(1)
 
 deletion_list = identify_stored_deletions(new_videos, stored_videos, storage_limit)
@@ -241,3 +243,5 @@ if delete_local:
     for path in old_videos:
         print('Deleting video ' + path.name)
         delete_local_video(path)
+
+input('Press any key to exit.')
