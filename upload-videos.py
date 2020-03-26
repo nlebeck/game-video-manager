@@ -150,12 +150,12 @@ def validate_upload_list(upload_list, storage_limit):
 # implementation currently uses a shared OneDrive folder as the storage
 # backend.
 
-def get_stored_videos():
+def get_stored_videos(user_name):
     onedrive_dir = get_onedrive_dir_path()
     video_tuples = []
     for path in onedrive_dir.iterdir():
         name = path.name
-        timestamp = get_modification_time(path)
+        timestamp = get_timestamp_from_canonical_name(name, user_name)
         size = get_size_megabytes(path)
         video_tuples.append((name, timestamp, size))
     return sorted(video_tuples, key = get_video_tuple_timestamp)
@@ -189,6 +189,19 @@ def init_storage():
     if not path.exists():
         os.mkdir(str(path))
 
+def get_timestamp_from_canonical_name(name, user_name):
+    split = name.split('.')
+    ts_string = split[0][(len(user_name) + 1):]
+    ts_split = ts_string.split('-')
+    timestamp = datetime(year = int(ts_split[0]),
+                         month = int(ts_split[1]),
+                         day = int(ts_split[2]),
+                         hour = int(ts_split[3]),
+                         minute = int(ts_split[4]),
+                         second = int(ts_split[5])
+                        )
+    return timestamp
+
 config_params = read_config_params()
 local_video_dir = config_params['LOCAL_VIDEO_DIR']
 user_name = config_params['USER_NAME']
@@ -200,7 +213,7 @@ if config_params['DELETE_LOCAL_VIDEOS'] == 'yes':
 init_storage()
 
 local_videos = get_local_videos()
-stored_videos = get_stored_videos()
+stored_videos = get_stored_videos(user_name)
 
 print('Your cloud storage usage before running this script: ', end = '')
 print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
@@ -232,7 +245,7 @@ for path in new_videos:
     upload_video(path)
 
 # Refresh the cached copy of the stored video list
-stored_videos = get_stored_videos()
+stored_videos = get_stored_videos(user_name)
 
 print('Your updated cloud storage usage: ', end = '')
 print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
