@@ -4,6 +4,9 @@
 # * I work with local video files in the form of paths and video files in cloud
 # storage as (name, timestamp, size) tuples.
 #
+# * I am going to just use a shared OneDrive folder as the storage backend for
+# now.
+#
 # My main resource in writing this script was the Python documentation.
 # Here are some other links that I found useful:
 # https://stackoverflow.com/a/4172465
@@ -12,6 +15,7 @@
 from datetime import datetime
 import os
 from pathlib import Path
+import shutil
 
 CONFIG_FILE = 'config.txt'
 
@@ -120,39 +124,38 @@ def get_local_videos():
         local_videos.append(path)
     return local_videos
 
-# This is a 'mocked' version of the function.
-#
-# TODO: Implement this function for real.
-#
+
+# These functions are part of the 'public' storage interface. Their
+# implementation currently uses a shared OneDrive folder as the storage
+# backend.
+
 def get_stored_videos():
-    return mocked_stored_videos
+    onedrive_dir = get_onedrive_dir_path()
+    video_tuples = []
+    for path in onedrive_dir.iterdir():
+        name = path.name
+        timestamp = get_modification_time(path)
+        size = get_size_megabytes(path)
+        video_tuples.append((name, timestamp, size))
+    return video_tuples
 
-# This is a 'mocked' version of the function.
-#
-# TODO Implement this function for real.
-#
 def remove_stored_video(video_tuple):
-    mocked_stored_videos.remove(video_tuple)
+    path = get_onedrive_dir_path().joinpath(video_tuple[NAME_INDEX])
+    path.unlink()
 
-# This is a 'mocked' version of the function.
-#
-# TODO Implement this function for real.
-#
 def upload_video(path):
     name = get_canonical_name(path)
-    time = get_modification_time(path)
-    size = get_size_megabytes(path)
-    mocked_stored_videos.append((name, time, size))
+    dest_path = get_onedrive_dir_path().joinpath(name)
+    shutil.copyfile(str(path), str(dest_path))
 
-# These are variables used to simulate cloud storage for the mocked functions
-# above.
-#
-# TODO Delete these variables when they're no longer needed.
-#
-mocked_stored_videos = [
-    ('Niel-3-24-12-00-00.mkv', datetime(2020, 3, 24, 12, 00, 00), 200),
-    ('Niel-3-24-12-10-00.mkv', datetime(2020, 3, 24, 12, 10, 00), 200)
-]
+
+# These functions are used internally to implement the storage interface above.
+
+def get_onedrive_dir_path():
+    config_params = read_config_params()
+    path_string = config_params['ONEDRIVE_VIDEO_DIR']
+    return Path(path_string)
+
 
 config_params = read_config_params()
 local_video_dir = config_params['LOCAL_VIDEO_DIR']
