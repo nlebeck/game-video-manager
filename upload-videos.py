@@ -146,7 +146,12 @@ def get_stored_videos():
         timestamp = get_modification_time(path)
         size = get_size_megabytes(path)
         video_tuples.append((name, timestamp, size))
-    return video_tuples
+    return sorted(video_tuples, key = get_video_tuple_timestamp)
+
+# I think I need to define this function explicitly to sort a list of video
+# tuples by timestamp, but I'm not sure.
+def get_video_tuple_timestamp(video_tuple):
+	return video_tuple[TIME_INDEX]
 
 def remove_stored_video(video_tuple):
     path = get_onedrive_dir_path().joinpath(video_tuple[NAME_INDEX])
