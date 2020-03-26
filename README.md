@@ -1,15 +1,52 @@
 # Game Video Manager
 
-I'm working on a set of scripts to simplify sharing video recordings from PC
-games. The plan is to have one script that uploads each user's most recent
-videos to an AWS storage bucket and another script that downloads all new
-videos from the bucket. The scripts would enforce a per-user maximum storage
-budget, to keep the total AWS storage usage capped.
+This repository contains a script that simplifies sharing recent video
+recordings using cloud storage. The script identifies new videos stored locally
+and uploads them to cloud storage, optionally deleting the local copies after
+uploading them. It enforces a per-user maximum storage budget and deletes your
+oldest stored videos to make space for newer ones.
 
-The immediate use case for this project is for a group of friends playing video
-games together, where one person makes "highlight reel" videos. The point is to
-make it easy for everyone to record their gameplay and then share their videos
-with that one person.
+Currently, this script uses OneDrive as the cloud storage backend and requires
+you to run the OneDrive client to map a shared folder onto your local
+filesystem. (It would probably work with something similar, like Google Drive
+or Dropbox, without any changes.) If you wanted to, you could manually copy
+your latest video recordings into the OneDrive folder, delete old recordings
+from OneDrive to free up space, organize and name the videos, and so on. Think
+of this script as a way to do all of that automatically, with a single click.
+
+## Warnings
+
+I have done some testing, and this script generally seems to be working
+correctly. However, there are still plenty of things that could go wrong:
+
+* This script could accidentally delete a video, especially if you have the
+`DELETE_LOCAL_VIDEOS` option enabled. If you did something really awesome on
+your latest recording, consider making your own backup of the file before
+running this script. On a related note, this script will delete your oldest
+videos from cloud storage if it needs to, so keep that in mind.
+
+* This script could delete or copy files that it shouldn't, especially if you
+set the `LOCAL_VIDEO_DIR` or `ONEDRIVE_VIDEO_DIR` config file parameters
+incorrectly. I believe it cannot delete directories, and I think it might not
+be able to mess with system files as long as you don't run it with admin
+permissions, but it could still theoretically cause lots of trouble! Think
+twice about running this script on a computer where you have important files
+that are not backed up.
+
+## Notes for JMH
+
+* I wrote this script assuming that we all have lots of local hard drive space.
+It seems like that assumption might not hold for most of us (thanks MW 2019).
+I think OneDrive has a feature where it will automatically delete local copies
+of unused files and keep them in the cloud, but if you need to free up space
+immediately, you can right-click on the shared OneDrive folder and select "Free
+up space." If this becomes a hassle, let me know, and I can think about
+modifying the script to avoid requiring you to run the OneDrive client.
+
+* I have no idea whether this script will actually be worth using over just
+manually uploading video files to OneDrive. I hope the benefits outweigh the
+downsides, but I had fun just making it, so I won't be offended at all if we'd
+rather just share videos manually.
 
 ## Setup
 
