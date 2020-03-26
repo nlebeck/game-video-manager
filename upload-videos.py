@@ -167,9 +167,15 @@ def upload_video(path):
 
 def get_onedrive_dir_path():
     config_params = read_config_params()
-    path_string = config_params['ONEDRIVE_VIDEO_DIR']
-    return Path(path_string)
+    base_path_string = config_params['ONEDRIVE_VIDEO_DIR']
+    base_path = Path(base_path_string)
+    user_path = base_path.joinpath(config_params['USER_NAME'])
+    return Path(user_path)
 
+def init_storage():
+	path = get_onedrive_dir_path()
+	if not path.exists():
+		os.mkdir(str(path))
 
 config_params = read_config_params()
 local_video_dir = config_params['LOCAL_VIDEO_DIR']
@@ -178,6 +184,8 @@ storage_limit = int(config_params['STORAGE_LIMIT_MB'])
 delete_local = False
 if config_params['DELETE_LOCAL_VIDEOS'] == 'yes':
 	delete_local = True
+
+init_storage()
 
 local_videos = get_local_videos()
 stored_videos = get_stored_videos()
