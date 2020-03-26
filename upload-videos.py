@@ -50,6 +50,9 @@ def get_canonical_name(path):
 # Preconditions: upload_list does not contain any videos in cloud storage.
 #
 def identify_stored_deletions(upload_list, stored_video_tuples, storage_limit):
+    if len(stored_video_tuples) == 0:
+        return []
+
     upload_size = 0
     for path in upload_list:
         upload_size += get_size_megabytes(path)
@@ -69,6 +72,9 @@ def identify_stored_deletions(upload_list, stored_video_tuples, storage_limit):
 # than any of the videos in cloud storage. Returns a list of paths.
 #
 def identify_new_local_videos(local_video_paths, stored_video_tuples):
+    if len(stored_video_tuples) == 0:
+        return local_video_paths.copy()
+
     stored_video_names = []
     for video in stored_video_tuples:
         stored_video_names.append(video[NAME_INDEX])
@@ -85,6 +91,9 @@ def identify_new_local_videos(local_video_paths, stored_video_tuples):
 # than any video in cloud storage, and can be safely deleted. Returns a list of paths.
 #
 def identify_old_local_videos(local_video_paths, stored_video_tuples):
+    if len(stored_video_tuples) == 0:
+        return []
+
     stored_video_names = []
     for video in stored_video_tuples:
         stored_video_names.append(video[NAME_INDEX])
