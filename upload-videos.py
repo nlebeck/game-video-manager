@@ -16,6 +16,7 @@ from datetime import datetime
 import os
 from pathlib import Path
 import shutil
+import sys
 
 CONFIG_FILE = 'config.txt'
 
@@ -133,6 +134,17 @@ def get_local_videos():
         local_videos.append(path)
     return local_videos
 
+# Check if the videos to upload are larger than the storage limit by
+# themselves.
+# Currently, this function just returns a boolean value, since the script will
+# just exit if the upload list is too large to fit.
+#
+def validate_upload_list(upload_list, storage_limit):
+    total_size = 0
+    for path in upload_list:
+        total_size += get_size_megabytes(path)
+    return total_size <= storage_limit
+
 
 # These functions are part of the 'public' storage interface. Their
 # implementation currently uses a shared OneDrive folder as the storage
@@ -194,6 +206,19 @@ print('Your cloud storage usage before running this script: ', end = '')
 print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
 
 new_videos = identify_new_local_videos(local_videos, stored_videos)
+validation_result = validate_upload_list(new_videos, storage_limit)
+if not validation_result:
+    print()
+    print('ERROR: Your new videos by themselves overflow your storage limit.')
+    print('Go delete some videos from your local video directory and try')
+    print('running this script again.')
+    print()
+    print('In theory, this script could just upload the most recent new')
+    print('videos that stay under the limit, but Niel was too lazy to')
+    print('implement that functionality. Go heckle him if you want this')
+    print('feature implemented.')
+    sys.exit(1)
+
 deletion_list = identify_stored_deletions(new_videos, stored_videos, storage_limit)
 print('Deleting old videos from cloud storage if necessary...')
 for video_tuple in deletion_list:
