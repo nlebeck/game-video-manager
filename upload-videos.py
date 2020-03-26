@@ -170,6 +170,9 @@ config_params = read_config_params()
 local_video_dir = config_params['LOCAL_VIDEO_DIR']
 user_name = config_params['USER_NAME']
 storage_limit = int(config_params['STORAGE_LIMIT_MB'])
+delete_local = False
+if config_params['DELETE_LOCAL_VIDEOS'] == 'yes':
+	delete_local = True
 
 local_videos = get_local_videos()
 stored_videos = get_stored_videos()
@@ -194,8 +197,9 @@ stored_videos = get_stored_videos()
 print('Your updated cloud storage usage: ', end = '')
 print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
 
-print('Deleting old local videos... ')
-old_videos = identify_old_local_videos(local_videos, stored_videos)
-for path in old_videos:
-    print('Deleting video ' + path.name)
-    delete_local_video(path)
+if delete_local:
+	print('Deleting old local videos... ')
+	old_videos = identify_old_local_videos(local_videos, stored_videos)
+	for path in old_videos:
+		print('Deleting video ' + path.name)
+		delete_local_video(path)

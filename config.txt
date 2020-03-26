@@ -1,4 +1,5 @@
 LOCAL_VIDEO_DIR=fill_in_here
 USER_NAME=fill_in_here
+DELETE_LOCAL_VIDEOS=no
 STORAGE_LIMIT_MB=fill_in_here
 ONEDRIVE_VIDEO_DIR=fill_in_here
