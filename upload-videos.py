@@ -165,13 +165,13 @@ def get_stored_videos(user_name):
 def get_video_tuple_timestamp(video_tuple):
 	return video_tuple[TIME_INDEX]
 
-def remove_stored_video(video_tuple):
-    path = get_onedrive_dir_path().joinpath(video_tuple[NAME_INDEX])
+def remove_stored_video(video_tuple, user_name):
+    path = get_onedrive_dir_path(user_name).joinpath(video_tuple[NAME_INDEX])
     path.unlink()
 
-def upload_video(path):
+def upload_video(path, user_name):
     name = get_canonical_name(path)
-    dest_path = get_onedrive_dir_path().joinpath(name)
+    dest_path = get_onedrive_dir_path(user_name).joinpath(name)
     shutil.copyfile(str(path), str(dest_path))
 
 
@@ -238,11 +238,11 @@ deletion_list = identify_stored_deletions(new_videos, stored_videos, storage_lim
 print('Deleting old videos from cloud storage if necessary...')
 for video_tuple in deletion_list:
     print('Deleting video ' + video_tuple[NAME_INDEX])
-    remove_stored_video(video_tuple)
+    remove_stored_video(video_tuple, user_name)
 print('Uploading new videos from your local storage...')
 for path in new_videos:
     print('Uploading video ' + path.name + ' of size ' + repr(round(get_size_megabytes(path), 1)) + ' MB')
-    upload_video(path)
+    upload_video(path, user_name)
 
 # Refresh the cached copy of the stored video list
 stored_videos = get_stored_videos(user_name)
