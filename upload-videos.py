@@ -151,7 +151,7 @@ def validate_upload_list(upload_list, storage_limit):
 # backend.
 
 def get_stored_videos(user_name):
-    onedrive_dir = get_onedrive_dir_path()
+    onedrive_dir = get_onedrive_dir_path(user_name)
     video_tuples = []
     for path in onedrive_dir.iterdir():
         name = path.name
@@ -177,15 +177,15 @@ def upload_video(path):
 
 # These functions are used internally to implement the storage interface above.
 
-def get_onedrive_dir_path():
+def get_onedrive_dir_path(user_name):
     config_params = read_config_params()
     base_path_string = config_params['ONEDRIVE_VIDEO_DIR']
     base_path = Path(base_path_string)
-    user_path = base_path.joinpath(config_params['USER_NAME'])
+    user_path = base_path.joinpath(user_name)
     return Path(user_path)
 
-def init_storage():
-    path = get_onedrive_dir_path()
+def init_storage(user_name):
+    path = get_onedrive_dir_path(user_name)
     if not path.exists():
         os.mkdir(str(path))
 
@@ -210,7 +210,7 @@ delete_local = False
 if config_params['DELETE_LOCAL_VIDEOS'] == 'yes':
     delete_local = True
 
-init_storage()
+init_storage(user_name)
 
 local_videos = get_local_videos()
 stored_videos = get_stored_videos(user_name)
