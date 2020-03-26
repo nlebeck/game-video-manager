@@ -173,9 +173,9 @@ def get_onedrive_dir_path():
     return Path(user_path)
 
 def init_storage():
-	path = get_onedrive_dir_path()
-	if not path.exists():
-		os.mkdir(str(path))
+    path = get_onedrive_dir_path()
+    if not path.exists():
+        os.mkdir(str(path))
 
 config_params = read_config_params()
 local_video_dir = config_params['LOCAL_VIDEO_DIR']
@@ -183,7 +183,7 @@ user_name = config_params['USER_NAME']
 storage_limit = int(config_params['STORAGE_LIMIT_MB'])
 delete_local = False
 if config_params['DELETE_LOCAL_VIDEOS'] == 'yes':
-	delete_local = True
+    delete_local = True
 
 init_storage()
 
@@ -211,8 +211,8 @@ print('Your updated cloud storage usage: ', end = '')
 print(repr(round(calculate_total_size_megabytes(stored_videos), 1)) + ' MB')
 
 if delete_local:
-	print('Deleting old local videos... ')
-	old_videos = identify_old_local_videos(local_videos, stored_videos)
-	for path in old_videos:
-		print('Deleting video ' + path.name)
-		delete_local_video(path)
+    print('Deleting old local videos... ')
+    old_videos = identify_old_local_videos(local_videos, stored_videos)
+    for path in old_videos:
+        print('Deleting video ' + path.name)
+        delete_local_video(path)
