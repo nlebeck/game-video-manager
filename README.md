@@ -69,8 +69,8 @@ in the same folder).
 be the path to the folder where your recording software puts recordings,
 `USER_NAME` should be your first name or nickname (no spaces), and
 `ONEDRIVE_VIDEO_DIR` should be the path to the shared OneDrive folder on your
-local filesystem. Make sure `STORAGE_LIMIT_MB` is set to the number we agreed
-on. You can change `DELETE_LOCAL_VIDEOS` from "no" to "yes" if you want the
+local filesystem. Make sure `STORAGE_LIMIT_MB` is set to the right storage
+limit. You can change `DELETE_LOCAL_VIDEOS` from "no" to "yes" if you want the
 script to delete videos from your local folder after it uploads them to
 cloud storage.
 
