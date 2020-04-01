@@ -33,21 +33,6 @@ permissions, but it could still theoretically cause lots of trouble! Think
 twice about running this script on a computer where you have important files
 that are not backed up.
 
-## Notes for JMH
-
-* I wrote this script assuming that we all have lots of local hard drive space.
-It seems like that assumption might not hold for most of us (thanks MW 2019).
-I think OneDrive has a feature where it will automatically delete local copies
-of unused files and keep them in the cloud, but if you need to free up space
-immediately, you can right-click on the shared OneDrive folder and select "Free
-up space." If this becomes a hassle, let me know, and I can think about
-modifying the script to avoid requiring you to run the OneDrive client.
-
-* I have no idea whether this script will actually be worth using over just
-manually uploading video files to OneDrive. I hope the benefits outweigh the
-downsides, but I had fun just making it, so I won't be offended at all if we'd
-rather just share videos manually.
-
 ## Setup
 
 These setup instructions are for the current version of this script, which uses
